@@ -77,3 +77,14 @@ EXPOSE 80
 RUN rm -rf COPY /home/hcpdocker/data/fastapi/myenv/ssh-key
 RUN rm -rf /root/.ssh
 
+RUN conda install wheel
+
+# Clone the repository
+RUN git -c core.sshCommand="ssh -i /home/hcpdocker/data/fastapi/myenv/ssh-key/kez" clone --branch fast-api-export-endpoint git@github.com:HCP-Sense/hcp_py-core.git /home/hcpdocker/data/fastapi/myenv/hcp_py-core
+# Set the working directory to the cloned repository
+WORKDIR /home/hcpdocker/data/fastapi/myenv/hcp_py-core
+RUN python setup.py bdist_wheel --universal
+RUN python -m pip install .
+RUN pip install -r requirements.txt
+# Uncomment and add any additional dependencies you need
+#RUN pip install pymmh3 tb-mqtt-client azure-storage-blob azure-identity
