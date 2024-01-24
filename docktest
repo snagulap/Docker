@@ -89,4 +89,12 @@ RUN pip install -r requirements.txt
 # Uncomment and add any additional dependencies you need
 #RUN pip install pymmh3 tb-mqtt-client azure-storage-blob azure-identity
 
- 
+
+
+# Build the project
+RUN /home/hcpdocker/data/fastapi/conda/bin/python setup.py bdist_wheel --universal
+
+# Install the built wheel and dependencies
+RUN /home/hcpdocker/data/fastapi/conda/bin/python -m pip install .
+RUN /home/hcpdocker/data/fastapi/conda/bin/pip install -r requirements.txt
+
