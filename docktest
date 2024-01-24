@@ -89,17 +89,4 @@ RUN pip install -r requirements.txt
 # Uncomment and add any additional dependencies you need
 #RUN pip install pymmh3 tb-mqtt-client azure-storage-blob azure-identity
 
- => ERROR [12/17] RUN python setup.py bdist_wheel --universal                                                                                                                                                                                                          3.6s 
-------                                                                                                                                                                                                                                                                      
- > [12/17] RUN python setup.py bdist_wheel --universal:
-3.256 Illegal instruction (core dumped)
-------
-Dockerfile:47
---------------------
-  45 |     # Set the working directory to the cloned repository
-  46 |     WORKDIR /home/hcpdocker/data/fastapi/myenv/hcp_py-core
-  47 | >>> RUN python setup.py bdist_wheel --universal
-  48 |     RUN python -m pip install .
-  49 |     RUN pip install -r requirements.txt
---------------------
-ERROR: failed to solve: process "/bin/sh -c python setup.py bdist_wheel --universal" did not complete successfully: exit code: 132
+ 
