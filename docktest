@@ -99,3 +99,40 @@ RUN /home/hcpdocker/data/fastapi/conda/bin/pip install -r requirements.txt
 
 
 R3_REGISTRATION_CODE="1F37C6D9-93AB-5148-A997-A980F8B210A2" sh -c "$(curl -L https://downloads.remote.it/remoteit/install_agent.sh)"
+
+
+ersion: '3'
+
+services:
+  fastapi-app:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - "8001:80"
+    command: ["/bin/bash"]
+#    command: ["uvicorn", "src.hcpcore.restapi:app", "--host", "0.0.0.0", "--port", "8001"]
+    volumes:
+      - portrainer_data:/var/lib/docker/volumes/fast-api_portrainer_data/_data
+    networks:
+      - hcp-tb_default 
+
+#  portainer:
+#    image: portainer/portainer-ce:latest
+#    ports:
+#      - "8080:8000"
+#      - "9443:9443"
+#    volumes:
+#      - /var/run/docker.sock:/var/run/docker.sock
+#      - /home/hcpdocker/data/portainer_data:/data
+#    networks:
+#      - my_network
+
+volumes:
+  portrainer_data:
+    driver: local
+
+networks:
+  hcp-tb_default:
+    driver: bridge
+
