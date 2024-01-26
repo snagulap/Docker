@@ -1,0 +1,44 @@
+FROM arm64v8/python:3.10
+
+RUN pip install --upgrade pip
+
+COPY ./kez /home/hcpdocker/data/fastapi/ssh-key/
+COPY ./kez.pub /home/hcpdocker/data/fastapi/ssh-key/
+
+# Configure SSH
+RUN mkdir -p /root/.ssh && \
+    cp /home/hcpdocker/data/fastapi/ssh-key/* /root/.ssh/ && \
+    chmod 600 /root/.ssh/kez
+
+RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
+
+RUN git -c core.sshCommand="ssh -i /home/hcpdocker/data/fastapi/ssh-key/kez" clone --branch fast-api-export-endpoint git@github.com:HCP-Sense/hcp_py-core.git /home/hcpdocker/data/fastapi/hcp_py-core
+
+WORKDIR /home/hcpdocker/data/fastapi/hcp_py-core
+
+RUN python -m pip install .
+RUN pip install -r requirements.txt
+RUN pip install pymmh3 tb-mqtt-client azure-storage-blob azure-identity
+
+# Install dependencies and clone the repository
+#RUN /home/hcpdocker/data/fastapi/myenv/bin/conda install wheel && \
+#RUN git -c core.sshCommand="ssh -i /home/hcpdocker/data/fastapi/myenv/ssh-key/kez" clone --branch fast-api-export-endpoint git@github.com:HCP-Sense/hcp_py-core.git
+#RUN cd hcp_py-core 
+#RUN python setup.py bdist_wheel --universal 
+#RUN python -m pip install . \
+#    && python -m pip install -r requirements.txt \
+#    && python -m pip install pymmh3 \
+#    && python -m pip install azure-storage-blob \
+#    && python -m pip install azure-identity
+
+EXPOSE 80
+
+# Install nano
+RUN apt-get update && apt-get install -y nano
+
+# Create and set permissions for the log file
+RUN touch /home/hcpdocker/data/fastapi/hcp_py-core/logfile.log && \
+    echo "Initial content" > /home/hcpdocker/data/fastapi/hcp_py-core/logfile.log
+
+RUN rm -rf COPY /home/hcpdocker/data/fastapi/ssh-key
+RUN rm -rf /root/.ssh
