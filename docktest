@@ -1,67 +1,31 @@
-FROM arm64v8/ubuntu:22.04
 
-ENV PATH="/home/hcpdocker/data/fastapi/conda/bin:${PATH}"
+FROM arm64v8/python:3.10
 
-# Install system dependencies
-RUN apt-get update && \
-    apt-get install -y wget openssh-server git && \
-    rm -rf /var/lib/apt/lists/*
+RUN pip install --upgrade pip
 
-# Install Miniconda
-RUN wget http://repo.continuum.io/miniconda/Miniconda3-py39_4.9.2-Linux-aarch64.sh && \
-    /bin/bash Miniconda3-py39_4.9.2-Linux-aarch64.sh -b -p /home/hcpdocker/data/fastapi/conda && \
-    rm -f Miniconda3-py39_4.9.2-Linux-aarch64.sh
-
-# Set the environment variables again after Miniconda installation
-ENV PATH="/home/hcpdocker/data/fastapi/conda/bin:${PATH}"
-
-# Create a virtual environment and install dependencies
-RUN /home/hcpdocker/data/fastapi/conda/bin/conda create -y --name myenv python=3.10 && \
-    /home/hcpdocker/data/fastapi/conda/bin/conda run -n myenv /bin/bash -c "conda install -y requests urllib3" && \
-    /home/hcpdocker/data/fastapi/conda/bin/conda run -n myenv /bin/bash -c "/home/hcpdocker/data/fastapi/conda/bin/pip install --upgrade pip" && \
-    /home/hcpdocker/data/fastapi/conda/bin/conda clean -afy
-
-
-# Update pip inside the virtual environment
-#RUN /home/hcpdocker/data/fastapi/myenv/conda install -y pip
-
-
-#RUN mkdir -p /home/hcpdocker/data/fastapi/myenv/ssh-key
-# Copy SSH keys
-COPY ./kez /home/hcpdocker/data/fastapi/myenv/ssh-key/
-COPY ./kez.pub /home/hcpdocker/data/fastapi/myenv/ssh-key/
+COPY ./kez /home/hcpdocker/data/fastapi/ssh-key/
+COPY ./kez.pub /home/hcpdocker/data/fastapi/ssh-key/
 
 # Configure SSH
 RUN mkdir -p /root/.ssh && \
-    cp /home/hcpdocker/data/fastapi/myenv/ssh-key/* /root/.ssh/ && \
+    cp /home/hcpdocker/data/fastapi/ssh-key/* /root/.ssh/ && \
     chmod 600 /root/.ssh/kez
 
 RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
 
-RUN conda install wheel
+RUN git -c core.sshCommand="ssh -i /home/hcpdocker/data/fastapi/ssh-key/kez" clone --branch fast-api-export-endpoint git@github.com:HCP-Sense/hcp_py-core.git /home/hcpdocker/data/fastapi/hcp_py-core
 
-# Clone the repository
-#RUN git -c core.sshCommand="ssh -i /home/hcpdocker/data/fastapi/myenv/ssh-key/kez" clone --branch fast-api-export-endpoint git@github.com:HCP-Sense/hcp_py-core.git 
-# Set the working directory to the cloned repository
-#WORKDIR /home/hcpdocker/data/fastapi/myenv/hcp_py-core
-#RUN cd hcp_py-core 
-#WORKDIR /home/hcpdocker/data/fastapi/myenv/hcp_py-core
-#RUN python setup.py bdist_wheel --universal
-#RUN python -m pip install .
-# Install the wheel
-#RUN conda run  pip install --upgrade pip
-#RUN python -m pip install .
-#RUN pip install -r requirements.txt
-#    && pip install pymmh3 \
-#    && pip install tb-mqtt-client \
-#    && pip install azure-storage-blob \
-#    && pip install azure-identity
+WORKDIR /home/hcpdocker/data/fastapi/hcp_py-core
+
+RUN python -m pip install .
+RUN pip install -r requirements.txt
+RUN pip install pymmh3 tb-mqtt-client azure-storage-blob azure-identity
 
 # Install dependencies and clone the repository
 #RUN /home/hcpdocker/data/fastapi/myenv/bin/conda install wheel && \
-RUN git -c core.sshCommand="ssh -i /home/hcpdocker/data/fastapi/myenv/ssh-key/kez" clone --branch fast-api-export-endpoint git@github.com:HCP-Sense/hcp_py-core.git
-RUN cd hcp_py-core
-RUN python setup.py bdist_wheel --universal
+#RUN git -c core.sshCommand="ssh -i /home/hcpdocker/data/fastapi/myenv/ssh-key/kez" clone --branch fast-api-export-endpoint git@github.com:HCP-Sense/hcp_py-core.git
+#RUN cd hcp_py-core 
+#RUN python setup.py bdist_wheel --universal 
 #RUN python -m pip install . \
 #    && python -m pip install -r requirements.txt \
 #    && python -m pip install pymmh3 \
@@ -70,69 +34,16 @@ RUN python setup.py bdist_wheel --universal
 
 EXPOSE 80
 
-#RUN touch /hcp_py-core/logfile.log
+# Install nano
+RUN apt-get update && apt-get install -y nano
 
-#RUN chmod +rw /hcp_py-core/logfie.log
+# Create and set permissions for the log file
+RUN touch /home/hcpdocker/data/fastapi/hcp_py-core/logfile.log && \
+    echo "Initial content" > /home/hcpdocker/data/fastapi/hcp_py-core/logfile.log
 
-RUN rm -rf COPY /home/hcpdocker/data/fastapi/myenv/ssh-key
+RUN rm -rf COPY /home/hcpdocker/data/fastapi/ssh-key
 RUN rm -rf /root/.ssh
 
-RUN conda install wheel
+#CMD["/bin/bash"]
 
-# Clone the repository
-RUN git -c core.sshCommand="ssh -i /home/hcpdocker/data/fastapi/myenv/ssh-key/kez" clone --branch fast-api-export-endpoint git@github.com:HCP-Sense/hcp_py-core.git /home/hcpdocker/data/fastapi/myenv/hcp_py-core
-# Set the working directory to the cloned repository
-WORKDIR /home/hcpdocker/data/fastapi/myenv/hcp_py-core
-RUN python setup.py bdist_wheel --universal
-RUN python -m pip install .
-RUN pip install -r requirements.txt
-# Uncomment and add any additional dependencies you need
-#RUN pip install pymmh3 tb-mqtt-client azure-storage-blob azure-identity
-
-
-
-# Build the project
-RUN /home/hcpdocker/data/fastapi/conda/bin/python setup.py bdist_wheel --universal
-# Install the built wheel and dependencies
-RUN /home/hcpdocker/data/fastapi/conda/bin/python -m pip install .
-RUN /home/hcpdocker/data/fastapi/conda/bin/pip install -r requirements.txt
-
-
-R3_REGISTRATION_CODE="1F37C6D9-93AB-5148-A997-A980F8B210A2" sh -c "$(curl -L https://downloads.remote.it/remoteit/install_agent.sh)"
-
-
-ersion: '3'
-
-services:
-  fastapi-app:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    ports:
-      - "8001:80"
-    command: ["/bin/bash"]
-#    command: ["uvicorn", "src.hcpcore.restapi:app", "--host", "0.0.0.0", "--port", "8001"]
-    volumes:
-      - portrainer_data:/var/lib/docker/volumes/fast-api_portrainer_data/_data
-    networks:
-      - hcp-tb_default 
-
-#  portainer:
-#    image: portainer/portainer-ce:latest
-#    ports:
-#      - "8080:8000"
-#      - "9443:9443"
-#    volumes:
-#      - /var/run/docker.sock:/var/run/docker.sock
-#      - /home/hcpdocker/data/portainer_data:/data
-#    networks:
-#      - my_network
-
-volumes:
-  portrainer_data:
-    driver: local
-
-networks:
-  hcp-tb_default:
-    driver: bridge
-
+#CMD["uvicorn", "src.hcpcore.restapi:app", "--host", "0.0.0.0", "--port", "80"]
