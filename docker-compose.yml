@@ -1,33 +1,81 @@
 version: '3'
 
 services:
-  fastapi-app:
+  app:
     build:
       context: .
       dockerfile: ./Dockerfile
     ports:
       - "8001:80"
-    volumes:
-      - portrainer_data:/var/lib/docker/volumes/fast-api_portrainer_data/_data
     networks:
-      - my_network
+      - hcp-tb_default
+  #    command: ["/bin/bash"]
+#    command: ["uvicorn", "src.hcpcore.restapi:app", "--host", "0.0.0.0", "--port", "8001"]
+
+  hcp-tb-mytb1-1:
+    image: thingsboard/tb-cassandra:3.5.1
+#    name: hcp-tb-mytb1-1
+#    command: start-tb.sh
+#    ports:
+#      - "1883:1883"
+#      - "7070:7070"
+#      - "5683-5688:5683-5688/udp"
+#      - "8080:9090"
+    networks:
+      - hcp-tb_default
+    volumes:
+      - tb_cassandra_data:/dataw
+      - tb_cassandra_log:/var/log/thingsboard
+    restart: always
+
+#  kafka:
+#    image: wurstmeister/kafka
+#    command: start-kafka.sh
+ #   ports:
+ #     - "9092:9092"
+#    networks:
+#      - hcp-tb_default
+#    volumes:
+#      - kafka_data:/var/kafka
+#    restart: always
+
+  hcp-tb-zookeeper-1:
+    image: zookeeper:3.5
+#    name: hcp-tb-zookeeper-1
+ #   ports:
+#     - "2181:2181"
+ #     - "2888:2888"
+ #     - "3888:3888"
+ #     - "8080:8080"
+    volumes:
+      - zookeeper_logs:/var/lib/docker/volumes/c442e1c1480fb8049a556e118d8ed8f5d4d09087c421632b588665387b497dcc/_data/log
+      - zookeeper_data:/var/lib/docker/volumes/728078409ba6aeaeb26294800e258c6aee4711e1bd72a52c3b62a261ef930c92/_data/data
+      - zookeeper_datalog:/var/lib/docker/volumes/f051357bd3889ea131c99ecc4b319505c4d22a6a9896f8b8b1b7bfe18bcb2172/_data/log
+    restart: always
 
   portainer:
     image: portainer/portainer-ce:latest
-    ports:
-      - "8080:8000"
-      - "9443:9443"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /home/hcpdocker/data/portainer_data:/data
+#    name: portainer/portainer-ce:latest
+#    command: /portainer
+#    ports:
+#      - "8000:8000"
+#      - "9443:9443"
+#      - "9000:9000"
     networks:
-      - 80f724f9b1554a3d9e591e85c35f2b49350b709db111966a1dd58544c3f6e2e6
- 
+      - hcp-tb_default
+    volumes:
+      - portainer_data:/home/hcpdocker/data/portainer_data/data
+    restart: always
 
 volumes:
-  portrainer_data:
-    driver: local
+  tb_cassandra_data:
+  tb_cassandra_log:
+  kafka_data:
+  zookeeper_logs:
+  zookeeper_data:
+  zookeeper_datalog:
+  portainer_data:
 
 networks:
-  my_network:
+  hcp-tb_default:
     driver: bridge
