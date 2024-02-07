@@ -1,0 +1,18 @@
+#Error received while deploying fastapi app which uses Thingsboard Mqtt broker for messaging 
+
+ Traceback (most recent call last):
+fastapi-app_1  |   File "/home/hcpdocker/data/FastAPI/Docker/app/src/hcpcore/rest.py", line 31, in <module>
+fastapi-app_1  |     mqtt_client.connect()
+fastapi-app_1  |   File "/usr/local/lib/python3.10/site-packages/tb_device_mqtt.py", line 254, in connect
+fastapi-app_1  |     self._client.connect(self.__host, self.__port, keepalive=keepalive)
+fastapi-app_1  |   File "/usr/local/lib/python3.10/site-packages/paho/mqtt/client.py", line 915, in connect
+fastapi-app_1  |     return self.reconnect()
+fastapi-app_1  |   File "/usr/local/lib/python3.10/site-packages/paho/mqtt/client.py", line 1057, in reconnect
+fastapi-app_1  |     sock = self._create_socket_connection()
+fastapi-app_1  |   File "/usr/local/lib/python3.10/site-packages/paho/mqtt/client.py", line 3731, in _create_socket_connection
+fastapi-app_1  |     return socket.create_connection(addr, timeout=self._connect_timeout, source_address=source)
+fastapi-app_1  |   File "/usr/local/lib/python3.10/socket.py", line 845, in create_connection
+fastapi-app_1  |     raise err
+fastapi-app_1  |   File "/usr/local/lib/python3.10/socket.py", line 833, in create_connection
+fastapi-app_1  |     sock.connect(sa)
+fastapi-app_1  | TimeoutError: timed out
