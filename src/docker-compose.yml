@@ -2,9 +2,8 @@ version: '3'
 
 services:
   nginx:
-    context: .
     image: nginx
-    dockerfile: ./requirements/nginx/.
+    build: ./requirements/nginx/.
     ports:
      - "443:443"
     volumes:
@@ -14,9 +13,8 @@ services:
     restart: always
 
   mariadb:
-    container: mariadb
     image: mariadb
-    dockerfile: ./requirements/mariadb/.
+    build: ./requirements/mariadb/.
     volumes:
       - mariadb:/var/lib/mysql
     restart: always
@@ -26,9 +24,8 @@ services:
      - inception
 
   wordpress:
-    container: wordpress
     image: wordpress
-    dockerfile: ./requirements/wordpress/.
+    build: ./requirements/wordpress/.
     depends_on:
       - mariadb
     volume:
