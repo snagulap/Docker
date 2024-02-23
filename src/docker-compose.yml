@@ -35,7 +35,20 @@ services:
     networks:
       - inception
     restart: always
-
+  
+  Volumes:
+    wordpress:
+      driver: local
+      driver_opts:
+       type: 'none'
+       o: 'bind'
+       device: 'Inception/volumes/wordpress'
+    mariadb:
+      driver: local
+      driver_opts:
+       type: 'none'
+       o: 'bind'
+       device: 'Inception/volumes/mariadb' 
 volumes:
   wordpress:
   mariadb:
