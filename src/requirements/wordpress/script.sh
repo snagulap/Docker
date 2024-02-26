@@ -8,14 +8,12 @@
 cd /var/www/wordpress
 wp core download --allow-root
 
-echo "ENV =" $SQL_DATABASE $SQL_USER $SQL_PASSWORD
-
 # Create wp-config.php file
     wp config create --allow-root \
         --dbname=$SQL_DATABASE \
         --dbuser=$SQL_USER \
         --dbpass=$SQL_PASSWORD \
-        --dbhost=$SQL_HOSTNAME --path='/var/www/wordpress'
+        --dbhost=$SQL_HOSTNAME:3306 --path='/var/www/wordpress'
 
 #     # Remove wp-config-sample.php if it exists
 #     [ -f wp-content/wp-config-sample.php ] && rm /var/www/wordpress/wp-config-sample.php
@@ -40,7 +38,7 @@ else
     wp user create $WP_USER $WP_EMAIL --role=author --user_pass=$WP_PASSWORD --allow-root
 
     # Install and activate the Salient theme
-    wp theme install salient --activate --allow-root
+    wp theme install astra --activate --allow-root
 
     # Update all plugins
     wp plugin update --all --allow-root
@@ -50,7 +48,7 @@ fi
 sed -i 's/listen = \/run\/php\/php7.3-fpm.sock/listen = 9000/g' /etc/php/7.3/fpm/pool.d/www.conf
 
 # Change ownership of the web directory
-chown www-data:www-data -R /var/www/*
+chown www-data:www-data -R /var/www/wordpress
 
 # Create /run/php directory if it doesn't exist
 mkdir -p /run/php
