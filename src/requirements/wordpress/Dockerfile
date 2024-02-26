@@ -20,13 +20,13 @@ RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli
     chmod +x wp-cli.phar && \
     mv wp-cli.phar /usr/local/bin/wp
 
-COPY wp-config.php /var/www/wordpress
-RUN chmod 644 /var/www/wordpress/wp-config.php
-RUN chown www-data:www-data /var/www/wordpress/wp-config.php
+# COPY data/wordpress/wp-config.php /var/www/wordpress
+# RUN chmod 644 /var/www/wordpress/wp-config.php
+# RUN chown www-data:www-data /var/www/wordpress/wp-config.php
 
 
 # Change ownership of the WordPress directory
-# RUN chown -R www-data:www-data /var/www/wordpress
+RUN chown -R root:root /var/www/wordpress
 
 # Copy wp-config.php and script.sh
 # COPY wp-config.php /var/www/wordpress

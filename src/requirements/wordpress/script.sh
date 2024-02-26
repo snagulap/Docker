@@ -6,6 +6,7 @@
 #mv /wordpress/wp-config.php /var/www/wordpress
 
 cd /var/www/wordpress
+wp core download --allow-root
 
 echo "ENV =" $SQL_DATABASE $SQL_USER $SQL_PASSWORD
 
