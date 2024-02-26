@@ -1,27 +1,42 @@
 #!/bin/bash
 
-if [-f .env]; then
-	source .env
-else
-   echo "Error: .env file not found. Please create the .env file with necessary variable"
-   exit 1
+# Start MariaDB server as a foreground process
+service mysql start
+# Wait for MariaDB to start
+sleep 5
 
-fi
+echo "CREATE DATABASE IF NOT EXISTS $SQL_DATABASE ;" > db1.sql
+echo "CREATE USER IF NOT EXISTS '$SQL_USER'@'%' IDENTIFIED BY '$SQL_PASSWORD' ;" >> db1.sql
+echo "GRANT ALL PRIVILEGES ON $SQL_DATABASE.* TO '$SQL_USER'@'%' ;" >> db1.sql
+echo "FLUSH PRIVILEGES;" >> db1.sql
 
-if [-d /var/lib/mysql/$MYSQL_DATABASE]; then
-   echo "Database already exists"
-else
-   service mariadb start
+# Execute SQL script
+mysql < db1.sql
 
-   echo "Create Database if not exists \ 'MYSQL_DATABASE\' ;" | mariadb
-   echo "Create user if not exists '$MYSQL_USER'@'%' Identified By '$MYSQL_PASSWORD' ;" | mariadb
-   echo "Grant ALL Privileges on \ 'MYSQL_DATABASE\'.* To 'MYSQL_User'@'%' Indentify by '$MYSQL_PASSWORD' ;" | mariadb
-   
-   sleep 1
-   echo "Alter User 'root'@'localhost' Indentify by 'MYSQL_ROOT_PASSWORD' ;Flush Privileges;" | mariadb
-   
-   mysqladmin -u"root" -p"$MYSQL_ROOT_PASSWORD" shutdown
-fi
+# Stop MariaDB server
+mysqladmin -u root -p"$SQL_ROOT_PWD" shutdown
+
+
+
+# #!/bin/bash
+
+# if [ -d /var/lib/mysql/$SQL_DATABASE ] ; then
+# 	echo "Database already exists"
+# else
+#     service mysql start
+
+#     echo "CREATE DATABASE IF NOT EXISTS \`$SQL_DATABASE\` ;" | mariadb
+#     echo "CREATE USER IF NOT EXISTS '$SQL_USER'@'%' IDENTIFIED BY '$SQL_PASSWORD' ;" | mariadb
+#     echo "GRANT ALL PRIVILEGES ON \`$SQL_DATABASE\`.* TO '$SQL_USER'@'%' IDENTIFIED BY '$SQL_PASSWORD' ;" | mariadb
+
+#     sleep 1
+#     echo "ALTER USER 'root'@'localhost' IDENTIFIED BY '$SQL_ROOT_PWD' ; FLUSH PRIVILEGES;" | mariadb
+#     service mariadb stop
+#     mysqladmin -u"root" -p"$SQL_ROOT_PWD" shutdown
+# fi
 
 mysqld_safe --bind-address=0.0.0.0
+
+
+
 
