@@ -26,7 +26,7 @@ RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli
 
 
 # Change ownership of the WordPress directory
-RUN chown -R root:root /var/www/wordpress
+RUN chown -R www-data:www-data /var/www/wordpress
 
 # Copy wp-config.php and script.sh
 # COPY wp-config.php /var/www/wordpress
